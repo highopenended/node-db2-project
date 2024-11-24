@@ -4,7 +4,7 @@ exports.up = function (knex) {
     tbl.string('vin', 17).notNullable().unique()
     tbl.string('make', 128).notNullable()
     tbl.string('model', 128).notNullable()
-    tbl.numeric('mileage').unsigned().notNullable() // unsigned() makes it so it can't be a negative
+    tbl.integer('mileage').unsigned().notNullable() // unsigned() makes it so it can't be a negative
     tbl.string('title', 128)  //.defaultTo('default val')
     tbl.string('transmission', 128)
   })

@@ -24,6 +24,6 @@ const cars=[
 ]
 
 exports.seed= async function(knex){
-    await cars.truncate()
+    await knex('cars').truncate()
     await knex('cars').insert(cars)
 }
