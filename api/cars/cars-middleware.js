@@ -1,6 +1,4 @@
 const Car = require("./cars-model");
-const express = require("express");
-const router = express.Router();
 
 const checkCarId = async (req, res, next) => {
     const id = req.params.id;
@@ -24,15 +22,14 @@ const checkCarPayload = (req, res, next) => {
     if (!make) fieldName = "make";
     if (!model) fieldName = "model";
     if (!mileage) fieldName = "mileage";
-
     if (!title) title = null;
     if (!transmission) transmission = null;
 
-    if (fieldName) {
-        return res.status(400).json({ message: `${fieldName} is missing` });
+    if (!fieldName) {
+      req.payload = { vin, make, model, mileage, title, transmission };
+      next();
     } else {
-        req.payload = { vin, make, model, mileage, title, transmission };
-        next();
+      return res.status(400).json({ message: `${fieldName} is missing` });
     }
 };
 
@@ -41,10 +38,6 @@ const checkVinNumberValid = (req, res, next) => {
     const vinLength = vin.length;
     const vinInt = parseInt(vin)
     const checkInt = (typeof vinInt === 'number' && !Number.isNaN(vinInt) && !(vin===null))
-
-    console.log("vinLength: ",vinLength)
-    console.log("checkInt: ", checkInt)
-
     if (checkInt && vinLength === 17) {
         req.payload.vin = vin;
         next();
@@ -58,13 +51,11 @@ const checkVinNumberUnique = async (req, res, next) => {
     try {
         const cars = await Car.getAll();
         let foundMatch = false;
-        cars.forEach((car) => {
-            if (vin == car.vin) foundMatch = true;
-        });
-        if (foundMatch) {
-            return res.status(400).json({ message: `vin ${vin} already exists` });
+        cars.forEach((car) => {if (vin == car.vin) foundMatch = true;});
+        if (!foundMatch) {
+          next();
         } else {
-            next();
+          return res.status(400).json({ message: `vin ${vin} already exists` });
         }
     } catch (err) {
         next(err);

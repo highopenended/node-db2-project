@@ -26,15 +26,6 @@ router.post("/",checkCarPayload,checkVinNumberValid,checkVinNumberUnique, async 
     try {        
         const { vin, make, model, mileage, title, transmission } = req.payload;
         const newCar=await Car.create({ vin, make, model, mileage, title, transmission })
-        
-        // console.log("vin:", vin)
-        // console.log("make:", make)
-        // console.log("model:", model)
-        // console.log("mileage:", mileage)
-        // console.log("title:", title)
-        // console.log("transmission:", transmission)
-
-        // const newCar = await Car.create(req.payload);
         res.status(200).json(newCar);
     } catch (err) {
         next(err);
