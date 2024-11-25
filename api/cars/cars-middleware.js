@@ -25,47 +25,49 @@ const checkCarPayload = (req, res, next) => {
     if (!model) fieldName = "model";
     if (!mileage) fieldName = "mileage";
 
-    if(!title) title=null
-    if(!transmission) transmission=null
+    if (!title) title = null;
+    if (!transmission) transmission = null;
 
     if (fieldName) {
-        res.status(400).json({ message: `<${fieldName}> is missing` });
-        next();
+        return res.status(400).json({ message: `${fieldName} is missing` });
     } else {
-        req.payload={ vin, make, model, mileage, title, transmission }
+        req.payload = { vin, make, model, mileage, title, transmission };
         next();
     }
 };
 
 const checkVinNumberValid = (req, res, next) => {
-    const vin = req.payload.vin
-    const vinLength = vin.length
-    const checkInt = parseInt(vin)
-    if(checkInt && vinLength===17){
-      req.payload.vin=checkInt
-      next()
-    }else{
-      res.status(400).json({ message: `vin <${vin}> is invalid` });
-      next()
+    const vin = req.payload.vin;
+    const vinLength = vin.length;
+    const vinInt = parseInt(vin)
+    const checkInt = (typeof vinInt === 'number' && !Number.isNaN(vinInt) && !(vin===null))
+
+    console.log("vinLength: ",vinLength)
+    console.log("checkInt: ", checkInt)
+
+    if (checkInt && vinLength === 17) {
+        req.payload.vin = vin;
+        next();
+    } else {
+        return res.status(400).json({ message: `vin ${vin} is invalid` });
     }
 };
 
 const checkVinNumberUnique = async (req, res, next) => {
-    const vin = req.payload.vin
-    try{
-      const cars = await Car.getAll();
-      let foundMatch=false
-      cars.forEach(car => {
-        if(vin==car.vin)  foundMatch=true
-      });
-
-      if(foundMatch){
-        res.status(400).json({ message: `vin <${vin}> already exists` });
-      }else{        
-        next()
-      }
-    }catch(err){
-      next(err)
+    const vin = req.payload.vin;
+    try {
+        const cars = await Car.getAll();
+        let foundMatch = false;
+        cars.forEach((car) => {
+            if (vin == car.vin) foundMatch = true;
+        });
+        if (foundMatch) {
+            return res.status(400).json({ message: `vin ${vin} already exists` });
+        } else {
+            next();
+        }
+    } catch (err) {
+        next(err);
     }
 };
 
