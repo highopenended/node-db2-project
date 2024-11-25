@@ -26,7 +26,9 @@ router.get("/:id", checkCarId, async (req, res, next) => {
 router.post("/",checkCarPayload,checkVinNumberValid,checkVinNumberUnique, async (req, res, next) => {
     try {
         const { vin, make, model, mileage, title, transmission } = req.payload;
-        const newCar={ vin, make, model, mileage, title, transmission }
+        const newCar=await Car.create({ vin, make, model, mileage, title, transmission })
+
+
         // console.log("vin:", vin)
         // console.log("make:", make)
         // console.log("model:", model)

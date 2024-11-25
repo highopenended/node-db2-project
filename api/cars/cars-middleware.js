@@ -8,7 +8,7 @@ const checkCarId = async (req, res, next) => {
         const car = await Car.getById(id);
         req.id = id;
         if (!car) {
-            res.status(404).json({ message: `car with id ${id} is not found` });
+            res.status(404).json({ message: `car with id <${id}> is not found` });
         } else {
             next();
         }
@@ -29,7 +29,7 @@ const checkCarPayload = (req, res, next) => {
     if(!transmission) transmission=null
 
     if (fieldName) {
-        res.status(400).json({ message: `${fieldName} is missing` });
+        res.status(400).json({ message: `<${fieldName}> is missing` });
         next();
     } else {
         req.payload={ vin, make, model, mileage, title, transmission }
@@ -38,13 +38,35 @@ const checkCarPayload = (req, res, next) => {
 };
 
 const checkVinNumberValid = (req, res, next) => {
-    // DO YOUR MAGIC
-    next()
+    const vin = req.payload.vin
+    const vinLength = vin.length
+    const checkInt = parseInt(vin)
+    if(checkInt && vinLength===17){
+      req.payload.vin=checkInt
+      next()
+    }else{
+      res.status(400).json({ message: `vin <${vin}> is invalid` });
+      next()
+    }
 };
 
-const checkVinNumberUnique = (req, res, next) => {
-    // DO YOUR MAGIC
-    next()
+const checkVinNumberUnique = async (req, res, next) => {
+    const vin = req.payload.vin
+    try{
+      const cars = await Car.getAll();
+      let foundMatch=false
+      cars.forEach(car => {
+        if(vin==car.vin)  foundMatch=true
+      });
+
+      if(foundMatch){
+        res.status(400).json({ message: `vin <${vin}> already exists` });
+      }else{        
+        next()
+      }
+    }catch(err){
+      next(err)
+    }
 };
 
 module.exports = {
