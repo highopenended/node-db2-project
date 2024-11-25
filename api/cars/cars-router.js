@@ -14,7 +14,6 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/:id", checkCarId, async (req, res, next) => {
-    // res.json(`getting car with id ${req.params.id}`)
     const id = req.params.id;
     try {
         const car = await Car.getById(id);
@@ -25,7 +24,21 @@ router.get("/:id", checkCarId, async (req, res, next) => {
 });
 
 router.post("/",checkCarPayload,checkVinNumberValid,checkVinNumberUnique, async (req, res, next) => {
-    res.json("posting new car");
+    try {
+        const { vin, make, model, mileage, title, transmission } = req.payload;
+        const newCar={ vin, make, model, mileage, title, transmission }
+        // console.log("vin:", vin)
+        // console.log("make:", make)
+        // console.log("model:", model)
+        // console.log("mileage:", mileage)
+        // console.log("title:", title)
+        // console.log("transmission:", transmission)
+
+        // const newCar = await Car.create(req.payload);
+        res.status(200).json(newCar);
+    } catch (err) {
+        next(err);
+    }
 });
 
 module.exports = router;
